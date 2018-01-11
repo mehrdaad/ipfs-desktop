@@ -7,16 +7,7 @@ import {app, dialog} from 'electron'
 
 import FileHistory from './utils/file-history'
 import KeyValueStore from './utils/key-value-store'
-
-// Set up what to do on Uncaught Exceptions
-process.on('uncaughtException', (error) => {
-  const msg = error.message || error
-  logger.error(`Uncaught Exception: ${msg}`, error)
-  // TODO: save error to somewhere (in .txt) and recommend the user
-  // to open an issue on the repo
-  dialog.showErrorBox('Uncaught Exception:', msg)
-  process.exit(1)
-})
+import PinnedFiles from './utils/pinned-files'
 
 // Set up crash reporter or electron debug
 if (isDev) {
@@ -33,16 +24,18 @@ function logo (color) {
   return path.join(p, `ipfs-logo-${color}.png`)
 }
 
-const ipfsAppData = (() => {
-  const p = path.join(app.getPath('appData'), 'ipfs-station')
-
-  if (!fs.existsSync(p)) {
-    fs.mkdirSync(p)
+function ensurePath (path) {
+  if (!fs.existsSync(path)) {
+    fs.mkdirSync(path)
   }
 
-  return p
-})()
+  return path
+}
 
+const ipfsAppData = ensurePath(path.join(app.getPath('appData'), 'ipfs-desktop'))
+const logsPath = ensurePath(path.join(ipfsAppData, 'logs'))
+
+const pinnedFiles = new PinnedFiles(path.join(ipfsAppData, 'pinned-files.json'))
 const fileHistory = new FileHistory(path.join(ipfsAppData, 'file-history.json'))
 const settingsStore = new KeyValueStore(path.join(ipfsAppData, 'config.json'))
 
@@ -56,12 +49,12 @@ const logger = winston.createLogger({
   format: winston.format.json(),
   transports: [
     new winston.transports.File({
-      filename: 'error.log',
+      filename: path.join(logsPath, 'error.log'),
       level: 'error',
       handleExceptions: false
     }),
     new winston.transports.File({
-      filename: 'combined.log',
+      filename: path.join(logsPath, 'combined.log'),
       handleExceptions: false
     })
   ]
@@ -69,29 +62,38 @@ const logger = winston.createLogger({
 
 if (isDev) {
   logger.add(new winston.transports.Console({
-    format: winston.format.simple(),
+    format: winston.format.combine(
+      winston.format.colorize(),
+      winston.format.simple()
+    ),
     handleExceptions: false
   }))
 }
 
+function fatal (error) {
+  logger.error(`Uncaught Exception: ${error.stack}`)
+
+  dialog.showErrorBox(
+    'Something wrong happened',
+    `Some unexpected error occurred and we couldn't handle it. Please check ${path.join(logsPath, 'error.log')}` +
+    ` for the latest logs and open an issue on https://github.com/ipfs-shipyard/ipfs-desktop/issues.`
+  )
+
+  process.exit(1)
+}
+
+// Set up what to do on Uncaught Exceptions and Unhandled Rejections
+process.on('uncaughtException', fatal)
+process.on('unhandledRejection', fatal)
+
 export default {
   logger: logger,
   fileHistory: fileHistory,
+  pinnedFiles: pinnedFiles,
   settingsStore: settingsStore,
   logo: {
     ice: logo('ice'),
     black: logo('black')
-  },
-  // Will be replaced by a BrowserWindow instance.
-  settingsWindow: {
-    index: `file://${__dirname}/views/settings.html`,
-    title: 'IPFS Station Settings',
-    show: false,
-    icon: logo('ice'),
-    backgroundColor: '#252525',
-    resizable: false,
-    width: 450,
-    height: 450
   },
   // Will be replaced by a Menubar instance.
   menubar: {
@@ -102,9 +104,9 @@ export default {
     window: {
       resizable: false,
       skipTaskbar: true,
-      width: 850,
+      width: 600,
       height: 400,
-      backgroundColor: '#000000',
+      backgroundColor: (settingsStore.get('lightTheme') ? '#FFFFFF' : '#000000'),
       webPreferences: {
         nodeIntegration: true,
         webSecurity: false

@@ -1,6 +1,6 @@
 {
-  "name": "ipfs-station",
-  "productName": "IPFS Station",
+  "name": "ipfs-desktop",
+  "productName": "IPFS Desktop",
   "private": true,
   "version": "0.3.0",
   "description": "IPFS Native Application",
@@ -11,30 +11,31 @@
     "electron-is-dev": "^0.3.0",
     "electron-menubar": "^1.0.1",
     "electron-squirrel-startup": "^1.0.0",
-    "file-extension": "^4.0.0",
     "go-ipfs-dep": "^0.4.13",
-    "ipfs-geoip": "^2.3.0",
     "ipfsd-ctl": "ipfs/js-ipfsd-ctl#feat/remote-daemon",
-    "moment": "^2.19.3",
-    "multiaddr": "^3.0.1",
+    "file-extension": "^4.0.1",
+    "ipfs-geoip": "^2.3.0",
+    "is-ipfs": "^0.3.2",
+    "moment": "^2.20.1",
+    "multiaddr": "^3.0.2",
     "normalize.css": "^7.0.0",
     "pretty-bytes": "^4.0.2",
     "prop-types": "^15.6.0",
-    "react": "^16.1.1",
+    "react": "^16.2.0",
     "react-dnd": "^2.5.4",
     "react-dnd-html5-backend": "^2.5.4",
-    "react-dom": "^16.1.1",
+    "react-dom": "^16.2.0",
     "winston": "^3.0.0-rc1"
   },
   "devDependencies": {
-    "babel-eslint": "^8.0.2",
+    "babel-eslint": "^8.2.1",
     "babel-plugin-transform-async-to-generator": "^6.24.1",
     "babel-preset-env": "^1.6.1",
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-2": "^6.24.1",
-    "electron-debug": "^1.4.0",
-    "electron-forge": "^4.1.5",
-    "electron-prebuilt-compile": "1.7.9",
+    "electron-debug": "^1.5.0",
+    "electron-forge": "^4.2.0",
+    "electron-prebuilt-compile": "1.8.1",
     "eslint": "^4",
     "eslint-config-aegir": "^1.0.1",
     "eslint-config-standard-react": "^5.0.0",
@@ -66,7 +67,7 @@
       },
       "electronPackagerConfig": {
         "packageManager": "yarn",
-        "executableName": "ipfs-station",
+        "executableName": "ipfs-desktop",
         "icon": "./src/img/icons/executable/ipfs.ico"
       },
       "electronInstallerDebian": {
@@ -76,17 +77,17 @@
         }
       },
       "electronWinstallerConfig": {
-        "name": "Station",
+        "name": "Desktop",
         "setupIcon": "./src/img/icons/executable/ipfs.ico",
         "loadingGif": "./src/img/loading.gif",
-        "exe": "ipfs-station.exe"
+        "exe": "ipfs-desktop.exe"
       },
       "electronInstallerDMG": {
         "icon": "./src/img/icons/executable/ipfs.icns"
       },
       "github_repository": {
         "owner": "ipfs-shipyard",
-        "name": "station"
+        "name": "ipfs-desktop"
       }
     }
   },
@@ -96,11 +97,13 @@
   "keywords": [
     "ipfs",
     "electron",
-    "station"
+    "station",
+    "desktop",
+    "app"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/ipfs/station"
+    "url": "https://github.com/ipfs-shipyard/ipfs-desktop"
   },
   "author": "IPFS",
   "contributors": [
@@ -112,7 +115,7 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ipfs/station/issues"
+    "url": "https://github.com/ipfs-shipyard/ipfs-desktop/issues"
   },
-  "homepage": "https://github.com/ipfs/station"
+  "homepage": "https://github.com/ipfs-shipyard/ipfs-desktop"
 }

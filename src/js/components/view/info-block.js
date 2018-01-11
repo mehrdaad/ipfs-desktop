@@ -14,31 +14,19 @@ import Button from '../view/button'
  * @prop {Bool}           [button=true]         - sets 'onClick' to be triggered when clicking a button.
  *                                                Otherwise it triggeres when clicking the whole block.
  * @prop {String}         [buttonMessage=Copy]  - sets the button message.
- * @prop {Bool}           [pre=false]           - tells if the information should be wrapped inside a 'pre' block.
  *
  * @return {ReactElement}
  */
 export default function InfoBlock (props) {
   let info = null
 
-  if (props.pre) {
-    if (Array.isArray(props.info)) {
-      info = []
-      props.info.forEach((element, index) => {
-        info.push((<pre key={index}>{element}</pre>))
-      })
-    } else {
-      info = (<pre>{props.info}</pre>)
-    }
+  if (Array.isArray(props.info)) {
+    info = []
+    props.info.forEach((element, index) => {
+      info.push((<p key={index} className='info'>{element}</p>))
+    })
   } else {
-    if (Array.isArray(props.info)) {
-      info = []
-      props.info.forEach((element, index) => {
-        info.push((<p key={index} className='info'>{element}</p>))
-      })
-    } else {
-      info = (<p className='info'>{props.info}</p>)
-    }
+    info = (<p className='info'>{props.info}</p>)
   }
 
   let button = null
@@ -55,11 +43,13 @@ export default function InfoBlock (props) {
 
   return (
     <div className={`info-block${clickable ? ' clickable' : ''}`} {...clickable && { onClick: props.onClick }}>
-      <div>
-        <p className='label'>{props.title}</p>
-        {info}
-        {button}
+      <div className='wrapper'>
+        <div>
+          <p className='label'>{props.title}</p>
+          {info}
+        </div>
       </div>
+      {button}
     </div>
   )
 }
@@ -72,12 +62,10 @@ InfoBlock.propTypes = {
   title: PropTypes.string.isRequired,
   onClick: PropTypes.func,
   button: PropTypes.bool,
-  buttonMessage: PropTypes.string,
-  pre: PropTypes.bool
+  buttonMessage: PropTypes.string
 }
 
 InfoBlock.defaultProps = {
-  pre: false,
   button: true,
   buttonMessage: 'Copy',
   onClick: null

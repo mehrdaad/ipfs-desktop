@@ -7,7 +7,7 @@ import {DropTarget} from 'react-dnd'
 import Pane from '../components/view/pane'
 import Header from '../components/view/header'
 import Footer from '../components/view/footer'
-import File from '../components/view/file'
+import File from '../components/view/file-block'
 import IconButton from '../components/view/icon-button'
 
 const fileTarget = {
@@ -32,16 +32,15 @@ class Files extends Component {
 
   static propTypes = {
     connectDropTarget: PropTypes.func.isRequired,
-    changeRoute: PropTypes.func.isRequired,
     isOver: PropTypes.bool.isRequired,
     canDrop: PropTypes.bool.isRequired,
+    adding: PropTypes.bool,
     files: PropTypes.array
   }
 
   static defaultProps = {
-    files: [],
-    onConsoleClick () {},
-    onBrowserClick () {}
+    adding: false,
+    files: []
   }
 
   _selectFileDialog (event) {
@@ -76,14 +75,23 @@ class Files extends Component {
       visibility: (isOver && canDrop) ? 'visible' : 'hidden'
     }
 
-    const files = this.props.files.map(file => {
+    let files = this.props.files.map(file => {
       return (<File {...file} />)
     })
 
+    if (files.length === 0) {
+      files = (
+        <p className='notice'>
+          You do not have any files yet. Add your first one by dropping
+          it here or clicking on one of the buttons on the bottom right side.
+        </p>
+      )
+    }
+
     return connectDropTarget(
       <div>
-        <Pane class='left-pane files'>
-          <Header title='Your Files' />
+        <Pane class='files'>
+          <Header title='Your Files' loading={this.props.adding} />
 
           <div className='main'>
             {files}
@@ -94,7 +102,6 @@ class Files extends Component {
           </div>
 
           <Footer>
-            <IconButton onClick={() => { this.props.changeRoute('peers') }} icon='pulse' />
             <IconButton active={this.state.sticky} onClick={this._toggleStickWindow} icon='eye' />
 
             <div className='right'>

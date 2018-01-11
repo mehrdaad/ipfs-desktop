@@ -2,10 +2,9 @@ import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 
 import Pane from '../components/view/pane'
-import Peer from '../components/view/peer'
+import InfoBlock from '../components/view/info-block'
 import Header from '../components/view/header'
 import Footer from '../components/view/footer'
-import IconButton from '../components/view/icon-button'
 
 export default class Peers extends Component {
   constructor (props) {
@@ -22,16 +21,17 @@ export default class Peers extends Component {
 
     if (this.state.search !== null && this.state.search !== '') {
       peers = peers.filter(peer => {
-        return peer.id.toLowerCase().indexOf(this.state.search) > -1
+        return peer.id.toLowerCase().indexOf(this.state.search) > -1 ||
+          peer.location.formatted.toLowerCase().indexOf(this.state.search) > -1
       })
     }
 
     peers = peers.map((peer, i) => {
-      return (<Peer key={i} {...peer} />)
+      return (<InfoBlock key={i} title={peer.id} info={peer.location.formatted} />)
     })
 
     return (
-      <Pane class='left-pane peers'>
+      <Pane class='peers'>
         <Header
           title={'Earth - ' + this.props.location}
           subtitle={this.props.peers.length + ' peers'} />
@@ -40,8 +40,6 @@ export default class Peers extends Component {
         </div>
 
         <Footer>
-          <IconButton onClick={() => { this.props.changeRoute('files') }} icon='files' />
-
           <div className='right'>
             <input type='text' onChange={this.onChangeSearch} placeholder='Search peer' />
           </div>
@@ -53,8 +51,7 @@ export default class Peers extends Component {
 
 Peers.propTypes = {
   location: PropTypes.string,
-  peers: PropTypes.array,
-  changeRoute: PropTypes.func.isRequired
+  peers: PropTypes.array
 }
 
 Peers.defaultProps = {

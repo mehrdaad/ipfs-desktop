@@ -8,7 +8,7 @@ import Button from './button'
 import Icon from './icon'
 
 /**
- * Is a File.
+ * Is a File Block.
  *
  * @param {Object} props
  *
@@ -18,7 +18,7 @@ import Icon from './icon'
  *
  * @return {ReactElement}
  */
-export default function File (props) {
+export default function FileBlock (props) {
   const extension = fileExtension(props.name)
   let icon = 'file'
   if (fileTypes[extension]) {
@@ -27,7 +27,7 @@ export default function File (props) {
 
   return (
     <div className='info-block file'>
-      <div>
+      <div className='wrapper'>
         <div className='icon'>
           <Icon name={icon} />
         </div>
@@ -35,20 +35,27 @@ export default function File (props) {
           <p className='label'>{props.name}</p>
           <p className='info'>{moment(props.date).fromNow()}</p>
         </div>
-        <div className='button-overlay'>
-          <Button text='Copy Link' onClick={() => {
-            clipboard.writeText(`https://ipfs.io/ipfs/${props.hash}`)
-          }} />
-        </div>
+        { props.uploading &&
+          <div className='right'>
+            <Icon name='reload' />
+          </div>
+        }
+      </div>
+
+      <div className='button-overlay'>
+        <Button text='Copy Link' onClick={() => {
+          clipboard.writeText(`https://ipfs.io/ipfs/${props.hash}`)
+        }} />
       </div>
     </div>
   )
 }
 
-File.propTypes = {
+FileBlock.propTypes = {
   name: PropTypes.string.isRequired,
   date: PropTypes.string.isRequired,
-  hash: PropTypes.string.isRequired
+  hash: PropTypes.string.isRequired,
+  uploading: PropTypes.bool
 }
 
 const fileTypes = {

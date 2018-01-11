@@ -2,7 +2,7 @@ import {Menubar} from 'electron-menubar'
 import fs from 'fs'
 import DaemonFactory from 'ipfsd-ctl'
 import {join} from 'path'
-import {dialog, ipcMain, app, BrowserWindow} from 'electron'
+import {dialog, ipcMain, app, Menu, BrowserWindow} from 'electron'
 
 import config from './config'
 import registerControls from './controls/main'
@@ -16,12 +16,12 @@ if (require('electron-squirrel-startup')) {
   app.quit()
 }
 
-// Ensure it's a single instance
+// Ensure it's a single instance.
 app.makeSingleInstance(() => {
   logger.error('Trying to start a second instance')
   dialog.showErrorBox(
     'Multiple instances',
-    'Sorry, but there can be only one instance of Station running at the same time.'
+    'Sorry, but there can be only one instance of IPFS Desktop running at the same time.'
   )
 })
 
@@ -217,7 +217,6 @@ function initialize (path, node) {
   })
 }
 
-// main entry point
 DaemonFactory.create().spawn({
   repoPath: config.ipfsPath,
   disposable: false,
@@ -225,7 +224,9 @@ DaemonFactory.create().spawn({
   start: false
 }, (err, node) => {
   if (err) {
-    logger.error(err)
+    // We can't start if we fail to aquire
+    // a ipfs node
+    logger.error(err.stack)
     process.exit(1)
   }
 
@@ -233,13 +234,30 @@ DaemonFactory.create().spawn({
     logger.info('Application is ready')
     menubar.tray.setHighlightMode(true)
 
+    if (process.platform === 'darwin') {
+      // Create our menu entries so that we can use MAC shortcuts
+      Menu.setApplicationMenu(Menu.buildFromTemplate([
+        {
+          label: 'Edit',
+          submenu: [
+            { role: 'undo' },
+            { role: 'redo' },
+            { type: 'separator' },
+            { role: 'cut' },
+            { role: 'copy' },
+            { role: 'paste' },
+            { role: 'pasteandmatchstyle' },
+            { role: 'delete' },
+            { role: 'selectall' }
+          ]
+        }
+      ]))
+    }
+
     ipcMain.on('request-state', onRequestState.bind(null, node))
     ipcMain.on('start-daemon', onStartDaemon.bind(null, node))
     ipcMain.on('stop-daemon', onStopDaemon.bind(null, node, () => {}))
-    ipcMain.on('quit-application', () => {
-      config.settingsWindow.destroy()
-      app.quit()
-    })
+    ipcMain.on('quit-application', app.quit.bind(app))
     app.once('will-quit', onWillQuit.bind(null, node))
 
     registerControls(config)
